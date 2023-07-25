@@ -1,110 +1,146 @@
 <template>
   <div class="login-container">
-    <el-form ref="formRef" :model="loginForm" :rules="loginRules" class="login-form" auto-complete="on" label-position="left">
+    <el-form ref="formRef" :model="loginForm" :rules="loginRules" class="login-form">
       <div class="title-container">
         <h3 class="title">尚品汇后台管理</h3>
       </div>
+      <!-- 账号表单 -->
       <el-form-item prop="username">
         <span class="svg-container">
+          <!-- svg图表封装为全局组件 -->
           <svg-icon name="ele-UserFilled" />
         </span>
-        <el-input ref="username" v-model="loginForm.username" placeholder="Username" name="username" type="text" tabindex="1" auto-complete="on" />
+        <el-input
+          ref="username"
+          v-model="loginForm.username"
+          placeholder="请你输入账号"
+          name="username"
+        />
       </el-form-item>
+      <!-- 密码表单 -->
       <el-form-item prop="password">
         <span class="svg-container">
           <svg-icon name="ele-Lock" />
         </span>
-        <el-input :key="passwordType" ref="passwordRef" v-model="loginForm.password" :type="passwordType" placeholder="Password" name="password" tabindex="2" auto-complete="on" @keyup.enter.native="handleLogin" />
+        <el-input
+          :key="passwordType"
+          ref="passwordRef"
+          v-model="loginForm.password"
+          :type="passwordType"
+          placeholder="请你输入密码"
+          name="password"
+          @keyup.enter="handleLogin"
+        />
         <span class="show-pwd" @click="showPwd">
           <svg-icon :name="passwordType === 'password' ? 'ele-Hide' : 'ele-View'" />
         </span>
       </el-form-item>
-      <el-button :loading="loading" type="primary" style="width:100%;margin-bottom:30px;height: 40px;" @click.native.prevent="handleLogin">登 陆</el-button>
+      <el-button
+        :loading="loading"
+        type="primary"
+        style="width: 100%; margin-bottom: 30px; height: 40px"
+        @click.prevent="handleLogin"
+        >登 陆</el-button
+      >
     </el-form>
   </div>
 </template>
-
-<script lang="ts">
-export default {
-  name: 'Login'
-}
-</script>
-
 <script lang="ts" setup>
-import { useUserInfoStore } from '@/stores/userInfo'
-import type { FormInstance } from 'element-plus'
-import { nextTick, ref, watch } from 'vue'
-import { useRoute, useRouter } from 'vue-router'
-
-const userInfoStore = useUserInfoStore()
-const route = useRoute()
-const router = useRouter()
+import { useUserInfoStore } from "@/stores/userInfo";
+import type { FormInstance } from "element-plus";
+import { nextTick, ref, watch } from "vue";
+import { useRoute, useRouter } from "vue-router";
+//用户相关的仓库
+const userInfoStore = useUserInfoStore();
+//获取路由对象
+const route = useRoute();
+//路由器
+const router = useRouter();
+//收集表单的数据:账号与密码
 const loginForm = ref({
-  username: 'admin',
-  password: '111111'
-})
-const loading = ref(false)
-const passwordType = ref('password')
-const redirect = ref('')
-const passwordRef = ref<HTMLInputElement>()
-const formRef = ref<FormInstance>()
+  username: "admin",
+  password: "111111",
+});
+//控制登录按钮小菊花的效果
+const loading = ref(false);
+//控制密码表单元素的类型:text->password
+const passwordType = ref("password");
+//存储query参数
+const redirect = ref("");
+//获取密码表单元素实例
+const passwordRef = ref<HTMLInputElement>();
+//获取form表单组件实例
+const formRef = ref<FormInstance>();
 
+//校验用户的名字
 const validateUsername = (rule: any, value: any, callback: any) => {
+  //rule:规则对象
+  //value:当前表单文本内容
+  //callBack放行函数
   if (value.length < 4) {
-    callback(new Error('用户名长度不能小于4位'))
+    callback(new Error("用户名长度不能小于4位"));
   } else {
-    callback()
+    callback();
   }
-}
+};
 const validatePassword = (rule: any, value: any, callback: any) => {
   if (value.length < 6) {
-    callback(new Error('密码长度不能小于6位'))
+    callback(new Error("密码长度不能小于6位"));
   } else {
-    callback()
+    callback();
   }
-}
+};
 
+//表单校验之自定义校验规则
+//required:次字段务必校验
+//trigger:触发的时机 blur失去焦点  change:文本发生变化 validator:自定校验规则
 const loginRules = {
   username: [{ required: true, validator: validateUsername }],
-  password: [{ required: true, trigger: 'blur', validator: validatePassword }]
-}
+  password: [{ required: true, validator: validatePassword }],
+};
 
+//监听路由
 watch(
   route,
   () => {
-    redirect.value = route.query && (route.query.redirect as string)
+    redirect.value = route.query && (route.query.redirect as string);
   },
-  { immediate: true }
-)
+  { immediate: true } //上来立即监听一次
+);
 
 /* 
 切换密码的显示/隐藏
 */
 const showPwd = () => {
-  if (passwordType.value === 'password') {
-    passwordType.value = 'text'
-  } else {
-    passwordType.value = 'password'
-  }
+  //密码框的类型切换
+  passwordType.value = passwordType.value === "password" ? "text" : "password";
+  //当响应式数据发生变化的时候获取更新后的DOM
+  //获取的密码的表单元素聚焦
   nextTick(() => {
-    passwordRef.value?.focus()
-  })
-}
+    passwordRef.value?.focus();
+  });
+};
 
 /* 
 点击登陆的回调
 */
 const handleLogin = async () => {
-  await formRef.value?.validate()
-  loading.value = true
-  const { username, password } = loginForm.value
+  //通过form组件实例的方法,校验两个表单项是否全部通过校验
+  await formRef.value?.validate();
+  //控制小菊花开始转动
+  loading.value = true;
+  //收集登录需要参数
+  const { username, password } = loginForm.value;
   try {
-    await userInfoStore.login(username, password)
-    router.push({ path: redirect.value || '/' })
+    //发起登录请求
+    await userInfoStore.login(username, password);
+    //如果登录成功:跳转到首页|曾经想去二没有去成的那个地方
+    router.push({ path: redirect.value || "/" });
   } finally {
-    loading.value = false
+    //小菊花关闭
+    loading.value = false;
   }
-}
+};
 </script>
 
 <style lang="scss">
@@ -167,7 +203,7 @@ $light_gray: #eee;
 
 .login-container {
   min-height: 100%;
-  width: 100%;
+  width: 100vw;
   background-color: $bg;
   overflow: hidden;
 

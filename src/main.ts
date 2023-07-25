@@ -19,6 +19,10 @@ import './styles/index.scss'
 import './permission'
 //目前不知道干啥
 import ElSvg from './components/SvgIcon/ElSvg'
+
+
+console.log(import.meta.env)
+
 ElSvg(app)
 app.use(pinia)
   .use(router)

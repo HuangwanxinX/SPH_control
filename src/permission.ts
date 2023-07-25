@@ -1,28 +1,28 @@
+//引入路由器对象
 import router from '@/router'
+//进度条
 import NProgress from 'nprogress'
 import 'nprogress/nprogress.css'
+NProgress.configure({ showSpinner: false });
+//获取用户相关的小仓库(token)
 import pinia from '@/stores'
 import { useUserInfoStore } from '@/stores/userInfo'
-import { ElMessage } from 'element-plus'
-import getPageTitle from './utils/get-page-title'
-
-NProgress.configure({ showSpinner: false });
 const userInfoStore = useUserInfoStore(pinia)
-
-
+//消息提示框
+import { ElMessage } from 'element-plus'
+//函数未知
+import getPageTitle from './utils/get-page-title'
 // 不用进行token检查的白名单路径数组
 const whiteList = ['/login']
-
 // 路由加载前
 router.beforeEach(async (to, from, next) => {
-   // 在显示进度条
-   NProgress.start()
-
-   // 设置整个页面的标题
-   document.title = getPageTitle(to.meta.title as string)
-
+  //访问路由之前:进度条开始动
+  NProgress.start()
+  // 设置整个页面的标题
+  document.title = getPageTitle(to.meta.title as string)
+  //获取小仓库的token,判断是否登录
   const token = userInfoStore.token
-  // 如果token存在(已经登陆或前面登陆过)
+  //登录成功
   if (token) {
     // 如果请求的是登陆路由
     if (to.path === '/login') {
@@ -70,5 +70,6 @@ router.beforeEach(async (to, from, next) => {
 
 // 路由加载后
 router.afterEach(() => {
-	NProgress.done();
+  //访问进度条结束消失
+  NProgress.done();
 })

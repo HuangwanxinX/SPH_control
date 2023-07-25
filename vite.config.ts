@@ -1,5 +1,5 @@
 import { defineConfig, loadEnv, type ConfigEnv } from "vite";
-import {resolve} from 'path'
+import { resolve } from "path";
 import vue from "@vitejs/plugin-vue";
 import vueJsx from "@vitejs/plugin-vue-jsx";
 // https://vitejs.dev/config/
@@ -9,7 +9,7 @@ export default defineConfig((mode: ConfigEnv) => {
     plugins: [vue(), vueJsx()],
     resolve: {
       alias: {
-        '@': resolve(__dirname, "src"),
+        "@": resolve(__dirname, "src"),
       },
       extensions: [".ts", ".vue", ".js", ".jsx", ".tsx"], // 导入时想要省略的扩展名列表。
     },
@@ -34,6 +34,16 @@ export default defineConfig((mode: ConfigEnv) => {
             },
           },
         ],
+      },
+    },
+    //代理跨域
+    server: {
+      proxy: {
+        "/app-dev": {
+          target: "http://sph-h5-api.atguigu.cn",
+          changeOrigin: true,
+          rewrite: (path) => path.replace(/^\/app-dev/, ""),
+        },
       },
     },
   };

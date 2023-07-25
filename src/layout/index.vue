@@ -40,6 +40,7 @@ export default {
   const handleClickOutside = () => {
     appStore.closeSidebar(false)
   }
+  
 </script>
 
 <style lang="scss" scoped>
