@@ -21,8 +21,6 @@ import './permission'
 import ElSvg from './components/SvgIcon/ElSvg'
 
 
-console.log(import.meta.env)
-
 ElSvg(app)
 app.use(pinia)
   .use(router)

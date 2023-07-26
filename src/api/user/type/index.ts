@@ -7,3 +7,11 @@ export interface UserParamsType{
 export interface UserLoginResponseData{
     token:string
 }
+
+export interface UserInfo {
+    "routes": string[],
+    "buttons": string[],
+    "roles": string[],
+    "name": string,
+    "avatar": string
+}
