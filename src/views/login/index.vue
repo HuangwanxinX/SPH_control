@@ -1,6 +1,11 @@
 <template>
   <div class="login-container">
-    <el-form ref="formRef" :model="loginForm" :rules="loginRules" class="login-form">
+    <el-form
+      ref="formRef"
+      :model="loginForm"
+      :rules="loginRules"
+      class="login-form"
+    >
       <div class="title-container">
         <h3 class="title">尚品汇后台管理</h3>
       </div>
@@ -32,7 +37,9 @@
           @keyup.enter="handleLogin"
         />
         <span class="show-pwd" @click="showPwd">
-          <svg-icon :name="passwordType === 'password' ? 'ele-Hide' : 'ele-View'" />
+          <svg-icon
+            :name="passwordType === 'password' ? 'ele-Hide' : 'ele-View'"
+          />
         </span>
       </el-form-item>
       <el-button
