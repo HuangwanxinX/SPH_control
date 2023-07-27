@@ -90,8 +90,8 @@ let trademark = reactive({
 })
 const rules = reactive({
   tmName: [
-    { required: true, message: '请输入品牌名称', trigger: 'blur' },
-    { min: 2, max: 10, message: '长度在 2 到 10 个字符', trigger: 'blur' },
+    { required: true, message: '请输入品牌名称' },
+    { min: 2, max: 10, message: '长度在 2 到 10 个字符' },
   ],
   logoUrl: [
     { required: true, message: '请上传品牌LOGO', trigger: 'blur' },
@@ -167,9 +167,12 @@ const add = () => {
   trademark.tmName = ''
   trademark.logoUrl = ''
   nextTick(() => {
-    ruleFormRef.value.clearValidate('tmName')
+
     ruleFormRef.value.clearValidate('logoUrl')
   })
+  setTimeout(() => {
+    ruleFormRef.value.clearValidate('tmName')
+  }, 50);
 }
 const exportToExcel = (data: any, fileName: any) => {
   const worksheet = XLSX.utils.json_to_sheet(data);
