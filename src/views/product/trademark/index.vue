@@ -4,10 +4,12 @@
       <el-button class="el-button el-button--primary" @click="add">
         添加
       </el-button>
-      <el-badge :value="pageSize1" class="item" type="primary" style="margin: 0px 20px">
+      <el-badge :value="trademarkList.length" class="item" type="primary" style="margin: 0px 20px">
+
         <el-button type="primary" size="default" :icon="Download"
-          @click="exportToExcel(TrademarkStore.trademarkList, 'excel')">导出此页数据</el-button>
+          @click="exportToExcel(trademarkList, 'excel')">导出此页数据</el-button>
       </el-badge>
+
       <el-dialog v-model="centerDialogVisible" :title="trademark.id ? '修改品牌' : '添加品牌'" width="50%">
         <el-form :rules="rules" ref="ruleFormRef" label-width="120px" class="demo-ruleForm" status-icon
           :model="trademark">
@@ -35,7 +37,7 @@
         </template>
       </el-dialog>
     </template>
-    <el-table :data="TrademarkStore.trademarkList" border style="width: 100% ">
+    <el-table :data="trademarkList" border style="width: 100% ">
       <el-table-column prop="id" label="序号" width="80" />
       <el-table-column prop="tmName" label="品牌名称" />
       <el-table-column prop="logoUrl" label="品牌LOGO">
@@ -46,13 +48,17 @@
       <el-table-column label="Operations">
         <template #default="scope">
           <el-button size="small" @click="handleEdit(scope.$index, scope.row)" :icon="Edit"></el-button>
-          <el-button size="small" type="danger" @click="handleDelete(scope.$index, scope.row)" :icon="Delete"></el-button>
+          <el-popconfirm title="你确定要删除吗?" @confirm="handleDelete(scope.$index, scope.row)">
+            <template #reference>
+              <el-button size="small" type="danger" :icon="Delete"></el-button>
+            </template>
+          </el-popconfirm>
         </template>
       </el-table-column>
     </el-table>
     <el-pagination v-model:current-page="currentPage1" v-model:page-size="pageSize1" :page-sizes="[3, 5, 7]"
       :small="small" :disabled="disabled" :background="background" layout=" prev, pager, next, jumper,->,total, sizes"
-      :total="TrademarkStore.total" @size-change="getData" @current-change="getData" :prev-icon="ArrowLeftBold"
+      :total="total" @size-change="getData" @current-change="getData" :prev-icon="ArrowLeftBold"
       :next-icon="ArrowRightBold" />
   </el-card>
 </template>
@@ -68,9 +74,9 @@ import {
 import { ElMessage } from 'element-plus'
 import type { UploadProps } from 'element-plus'
 import { onMounted, reactive, ref, nextTick } from 'vue'
-import { useTrademarkStore } from '@/stores/trademark'
-import { reqaddorUpdata } from '@/api/user'
+import { reqaddorUpdata, reqtrademark, reqdelete } from '@/api/trademark'
 import * as XLSX from 'xlsx/xlsx.mjs'
+// 这种引入方式会报错
 // import XLSX from 'xlsx'
 const currentPage1 = ref(1)
 const pageSize1 = ref(3)
@@ -78,16 +84,18 @@ const small = ref(false)
 const background = ref(true)
 const disabled = ref(false)
 const centerDialogVisible = ref(false)
-//用户相关的仓库
+//from表单
 const ruleFormRef = ref()
 const item = ref()
-const TrademarkStore = useTrademarkStore();
 
 let trademark = reactive({
   id: 0,
   tmName: '',
   logoUrl: ''
 })
+let trademarkList = ref([])
+// let trademarkList1 = reactive([])
+let total = ref(0)
 const rules = reactive({
   tmName: [
     { required: true, message: '请输入品牌名称' },
@@ -117,11 +125,15 @@ const beforeAvatarUpload: UploadProps['beforeUpload'] = (rawFile) => {
   }
   return true
 }
-const getData = () => {
-  TrademarkStore.getTrademarkList(currentPage1.value, pageSize1.value)
+const getData = async () => {
+  let result = await reqtrademark(currentPage1.value, pageSize1.value)
+  // reactive数据不能直接赋值
+  // trademarkList1.splice(0, trademarkList.length, ...result.records)
+  trademarkList.value = result.records
+  total.value = result.total
 }
 const handleDelete = async (a: any, b: any) => {
-  await TrademarkStore.deleteTrademark(b.id)
+  await reqdelete(b.id)
   getData()
 }
 const handleEdit = async (a: any, b: any) => {
@@ -205,6 +217,13 @@ const exportToExcel = (data: any, fileName: any) => {
   width: 178px;
   height: 178px;
   display: block;
+}
+
+:deep(.el-dialog) {
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  margin: 0 !important;
 }
 </style>
 

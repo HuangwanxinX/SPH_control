@@ -18,18 +18,3 @@ export const reqLogin = (data: UserParamsType) =>
 export const reqUserInfo = () => request.get<any, UserInfo>(API.USERINFO_URL);
 
 export const reqlogout = () => request.post<any, any>(API.LOGOUT_URL);
-
-export const reqtrademark = (page: number, limit: number) => {
-  return request.get<any, any>(API.TRADEMARK_URL + `${page}/${limit}`);
-};
-export const reqdelete = (id: string) => {
-  return request.delete<any, any>(API.DELETE_URL + `${id}`);
-};
-
-export const reqaddorUpdata = (data: any) => {
-  if (!data.id) {
-    return request.post<any, any>(API.ADDORUPDATE_URL + "save", data);
-  } else {
-    return request.put<any, any>(API.ADDORUPDATE_URL + "update", data);
-  }
-};
