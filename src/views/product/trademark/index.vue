@@ -31,6 +31,7 @@
           class="demo-ruleForm"
           status-icon
           :model="trademark"
+          @submit.prevent="eidt"
         >
           <el-form-item
             prop="tmName"
@@ -47,6 +48,7 @@
               :show-file-list="false"
               :on-success="handleAvatarSuccess"
               :before-upload="beforeAvatarUpload"
+              drag
             >
               <img
                 v-if="trademark.logoUrl"
